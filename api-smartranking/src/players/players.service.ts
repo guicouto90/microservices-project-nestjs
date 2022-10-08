@@ -1,10 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreatePlayer } from './dtos/player.dto';
 import { Player } from './utils/types';
 import { v4 as uuidv4 } from 'uuid';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class PlayersService {
+  constructor(
+    @Inject('PLAYER_MODEL')
+    private readonly playerModel: Model<Player>,
+  ) {}
   private readonly logger = new Logger(PlayersService.name);
   private players: Player[] = [];
 
@@ -13,8 +18,17 @@ export class PlayersService {
     const player = await this.getPlayerByEmail(body.email);
     if (player) {
       this.update(player, body);
+      await this.playerModel.findOneAndUpdate({ email: player.email }, body);
     } else {
       this.create(body);
+      await this.playerModel.create({
+        phoneNumber: body.phoneNumber,
+        email: body.email,
+        name: body.name,
+        ranking: 'A',
+        rankingPosition: 10,
+        photoUrl: 'http://localhost:3000/test',
+      });
     }
   }
 
