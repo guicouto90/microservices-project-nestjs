@@ -3,11 +3,12 @@ import { CreatePlayer } from './dtos/player.dto';
 import { Player } from './utils/types';
 import { v4 as uuidv4 } from 'uuid';
 import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class PlayersService {
   constructor(
-    @Inject('PLAYER_MODEL')
+    @InjectModel('Player')
     private readonly playerModel: Model<Player>,
   ) {}
   private readonly logger = new Logger(PlayersService.name);
